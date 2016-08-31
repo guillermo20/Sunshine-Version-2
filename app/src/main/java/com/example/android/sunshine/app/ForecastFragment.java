@@ -76,7 +76,7 @@ public class ForecastFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemId= item.getItemId();
         switch (itemId){
-            case R.id.action_refresh: new FetchWeatherTask().execute();
+            case R.id.action_refresh: new FetchWeatherTask().execute(); break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -135,6 +135,7 @@ public class ForecastFragment extends Fragment {
                     return null;
                 }
                 forecastJsonStr = buffer.toString();
+                Log.v("ForecastFragment"," json string: "+forecastJsonStr);
                 return forecastJsonStr;
             } catch (IOException e) {
                 Log.e("ForecastFragment", "Error ", e);
