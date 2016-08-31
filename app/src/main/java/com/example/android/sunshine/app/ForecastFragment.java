@@ -54,13 +54,22 @@ public class ForecastFragment extends Fragment {
 
         //String jsonWeatherData = connectToWeatherAPI();
         return rootView;
+
     }
+
+
+    /*@Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        setHasOptionsMenu(true);
+        inflater.inflate(R.menu.forecastfragment,menu);
+        //super.onCreateOptionsMenu(menu, inflater);
+    }*/
 
     public class FetchWeatherTask extends AsyncTask<Void,Void,String>{
 
         public FetchWeatherTask(){
         }
-        
+
         @Override
         protected String doInBackground(Void... params) {
             return connectToWeatherAPI();
