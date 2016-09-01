@@ -1,5 +1,6 @@
 package com.example.android.sunshine.app;
 
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -12,6 +13,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -29,6 +34,7 @@ import java.util.List;
 public class ForecastFragment extends Fragment {
 
     private ArrayAdapter<String> adapter;
+
     public ForecastFragment() {
     }
 
@@ -49,10 +55,10 @@ public class ForecastFragment extends Fragment {
         List<String> weekForecast = new ArrayList<String>(Arrays.asList(data));
 
         //Creating the array adapter so we can show the data for the linear layout
-        adapter = new ArrayAdapter<String>(getActivity(),R.layout.list_item_forecast,R.id.list_item_forecast_textview,weekForecast);
+        adapter = new ArrayAdapter<String>(getActivity(), R.layout.list_item_forecast, R.id.list_item_forecast_textview, weekForecast);
 
         //Added adapter to the listview
-        ListView listViewForecast= (ListView) rootView.findViewById(R.id.listview_forecast);
+        ListView listViewForecast = (ListView) rootView.findViewById(R.id.listview_forecast);
         listViewForecast.setAdapter(adapter);
 
         //String jsonWeatherData = connectToWeatherAPI();
@@ -69,44 +75,75 @@ public class ForecastFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.forecastfragment,menu);
+        inflater.inflate(R.menu.forecastfragment, menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int itemId= item.getItemId();
-        switch (itemId){
-            case R.id.action_refresh: new FetchWeatherTask().execute(); break;
+        int itemId = item.getItemId();
+        switch (itemId) {
+            case R.id.action_refresh:
+                new FetchWeatherTask().execute("Lima,PE");
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    public class FetchWeatherTask extends AsyncTask<Void,Void,String>{
 
-        public FetchWeatherTask(){
+    public class FetchWeatherTask extends AsyncTask<String, Void, String> {
+
+        public FetchWeatherTask() {
+        }
+
+        public double getMaxTemperatureForDay(String weatherJsonStr, int dayIndex) throws JSONException {
+            double max = 0;
+            JSONObject jsonObject = new JSONObject(weatherJsonStr);
+            JSONArray jsonArray = jsonObject.getJSONArray("list");
+            jsonObject = jsonArray.getJSONObject(dayIndex);
+            jsonObject = jsonObject.getJSONObject("temp");
+            max = jsonObject.getDouble("max");
+            Log.i("getMaxTemperatureForDay", "max = " + max);
+            return max;
         }
 
         @Override
-        protected String doInBackground(Void... params) {
-            return connectToWeatherAPI();
+        protected String doInBackground(String... params) {
+
+            String json = connectToWeatherAPI(params);
+            try {
+                getMaxTemperatureForDay(json, 2);
+            } catch (Exception e) {
+                Log.e("maxException", "something went wrong");
+            }
+
+            return json;
         }
+
 
         /**
          * returns the Json String of the request for the weather API
+         *
          * @return
          */
-        private String connectToWeatherAPI(){
+        private String connectToWeatherAPI(String... params) {
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
 
             // Will contain the raw JSON response as a string.
             String forecastJsonStr = null;
+            if (params.length == 0) {
+                return null;
+            }
+
 
             try {
                 // Construct the URL for the OpenWeatherMap query
                 // Possible parameters are avaiable at OWM's forecast API page, at
                 // http://openweathermap.org/API#forecast
-                URL url = new URL("http://api.openweathermap.org/data/2.5/forecast/daily?q=Lima,PE&cnt=7&units=metric&mode=json&appid=24b4c747cdc04d5c326d81130066b6e2");
+                String urlStr = "http://api.openweathermap.org/data/2.5/forecast/daily?q=" + params[0] + "&cnt=7&units=metric&mode=json&appid=24b4c747cdc04d5c326d81130066b6e2";
+                Uri uri = Uri.parse(urlStr).buildUpon().build();
+                URL url = new URL(uri.toString());
+                Log.v("ForecastFragment", "URL: " + url.toString());
 
                 // Create the request to OpenWeatherMap, and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
@@ -135,14 +172,14 @@ public class ForecastFragment extends Fragment {
                     return null;
                 }
                 forecastJsonStr = buffer.toString();
-                Log.v("ForecastFragment"," json string: "+forecastJsonStr);
+                Log.v("ForecastFragment", " json string: " + forecastJsonStr);
                 return forecastJsonStr;
             } catch (IOException e) {
                 Log.e("ForecastFragment", "Error ", e);
                 // If the code didn't successfully get the weather data, there's no point in attemping
                 // to parse it.
                 return null;
-            } finally{
+            } finally {
                 if (urlConnection != null) {
                     urlConnection.disconnect();
                 }
