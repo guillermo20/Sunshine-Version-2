@@ -55,10 +55,9 @@ public class ForecastFragment extends Fragment {
                 "Sun 6/29 - Sunny - 20/7"
         };
         List<String> weekForecast = new ArrayList<String>(Arrays.asList(data));
-
         //Creating the array adapter so we can show the data for the linear layout
-        adapter = new ArrayAdapter<String>(getActivity(), R.layout.list_item_forecast, R.id.list_item_forecast_textview, weekForecast);
-
+        //adapter = new ArrayAdapter<String>(getActivity(), R.layout.list_item_forecast, R.id.list_item_forecast_textview, weekForecast);
+        adapter = new ArrayAdapter<String>(getActivity(),R.layout.list_item_forecast,R.id.list_item_forecast_textview);
         //Added adapter to the listview
         ListView listViewForecast = (ListView) rootView.findViewById(R.id.listview_forecast);
         listViewForecast.setAdapter(adapter);
@@ -215,6 +214,7 @@ public class ForecastFragment extends Fragment {
             String[] results = new String[0];
             try {
                 results = getWeatherDataFromJson(connectToWeatherAPI(params),7);
+
             } catch (JSONException e) {
                 Log.e(LOG_TAG,e.getMessage());
             }
@@ -222,6 +222,12 @@ public class ForecastFragment extends Fragment {
             return results ;
         }
 
+        @Override
+        protected void onPostExecute(String[] strings) {
+            List<String> weekForecast = new ArrayList<String>(Arrays.asList(strings));
+            adapter.clear();
+            adapter.addAll(weekForecast);
+        }
 
         /**
          * returns the Json String of the request for the weather API
