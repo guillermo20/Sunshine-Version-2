@@ -2,6 +2,7 @@ package com.example.android.sunshine.app;
 
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.format.Time;
@@ -12,8 +13,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -61,7 +64,13 @@ public class ForecastFragment extends Fragment {
         //Added adapter to the listview
         ListView listViewForecast = (ListView) rootView.findViewById(R.id.listview_forecast);
         listViewForecast.setAdapter(adapter);
-
+        listViewForecast.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String forecast = (String) parent.getItemAtPosition(position);
+                Toast.makeText(getActivity(),forecast,Toast.LENGTH_SHORT).show();
+            }
+        });
         //String jsonWeatherData = connectToWeatherAPI();
         return rootView;
 
@@ -226,7 +235,9 @@ public class ForecastFragment extends Fragment {
         protected void onPostExecute(String[] strings) {
             List<String> weekForecast = new ArrayList<String>(Arrays.asList(strings));
             adapter.clear();
-            adapter.addAll(weekForecast);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                adapter.addAll(weekForecast);
+            }
         }
 
         /**
