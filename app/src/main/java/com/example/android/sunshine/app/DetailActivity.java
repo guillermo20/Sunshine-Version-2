@@ -1,13 +1,17 @@
 package com.example.android.sunshine.app;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
+import android.widget.TextView;
 
 public class DetailActivity extends ActionBarActivity {
 
@@ -51,6 +55,9 @@ public class DetailActivity extends ActionBarActivity {
      */
     public static class PlaceholderFragment extends Fragment {
 
+        private final String LOG_TAG="PlaceholderFragment";
+
+        private Adapter adapter;
         public PlaceholderFragment() {
         }
 
@@ -58,7 +65,11 @@ public class DetailActivity extends ActionBarActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
 
+            String forecast= getActivity().getIntent().getStringExtra(Intent.EXTRA_TEXT);
+            Log.i(LOG_TAG,forecast);
             View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
+            TextView textView = (TextView) rootView.findViewById(R.id.forecast);
+            textView.setText(forecast);
             return rootView;
         }
     }
