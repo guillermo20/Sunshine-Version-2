@@ -96,6 +96,9 @@ public class ForecastFragment extends Fragment {
             case R.id.action_refresh:
                 new FetchWeatherTask().execute("Lima,PE");
                 break;
+            case R.id.action_main_settings:
+                startActivity(new Intent(getActivity(),SettingsActivity.class));
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
