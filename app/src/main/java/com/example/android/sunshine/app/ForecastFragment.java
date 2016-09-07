@@ -50,16 +50,6 @@ public class ForecastFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Create some dummy data for the ListView.  Here's a sample weekly forecast
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        String[] data = {
-                "Mon 6/23 - Sunny - 31/17",
-                "Tue 6/24 - Foggy - 21/8",
-                "Wed 6/25 - Cloudy - 22/17",
-                "Thurs 6/26 - Rainy - 18/11",
-                "Fri 6/27 - Foggy - 21/10",
-                "Sat 6/28 - TRAPPED IN WEATHERSTATION - 23/18",
-                "Sun 6/29 - Sunny - 20/7"
-        };
-        List<String> weekForecast = new ArrayList<String>(Arrays.asList(data));
         //Creating the array adapter so we can show the data for the linear layout
         //adapter = new ArrayAdapter<String>(getActivity(), R.layout.list_item_forecast, R.id.list_item_forecast_textview, weekForecast);
         adapter = new ArrayAdapter<String>(getActivity(),R.layout.list_item_forecast,R.id.list_item_forecast_textview);
@@ -96,15 +86,7 @@ public class ForecastFragment extends Fragment {
         int itemId = item.getItemId();
         switch (itemId) {
             case R.id.action_refresh:
-                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-                String location = preferences.getString(getString(R.string.key_location),getString(R.string.pref_location_default_value));
-                if(location != null && !location.equals("")){
-                    Log.i(LOG_TAG,"location = "+location);
-                    new FetchWeatherTask().execute(location);
-                }else{
-                    new FetchWeatherTask().execute("Lima,PE");
-                }
-
+                updateWeahter();
                 break;
             case R.id.action_main_settings:
                 startActivity(new Intent(getActivity(),SettingsActivity.class));
@@ -113,6 +95,22 @@ public class ForecastFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
+    private void updateWeahter(){
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String location = preferences.getString(getString(R.string.key_location),getString(R.string.pref_location_default_value));
+        if(location != null && !location.equals("")){
+            Log.i(LOG_TAG,"location = "+location);
+            new FetchWeatherTask().execute(location);
+        }else{
+            new FetchWeatherTask().execute("Lima,PE");
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        updateWeahter();
+    }
 
     public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
 
