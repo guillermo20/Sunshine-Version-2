@@ -1,10 +1,12 @@
 package com.example.android.sunshine.app;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.text.format.Time;
 import android.util.Log;
@@ -39,7 +41,7 @@ import java.util.List;
 public class ForecastFragment extends Fragment {
 
     private ArrayAdapter<String> adapter;
-
+    private final String LOG_TAG=ForecastFragment.class.getName();
     public ForecastFragment() {
     }
 
@@ -94,7 +96,15 @@ public class ForecastFragment extends Fragment {
         int itemId = item.getItemId();
         switch (itemId) {
             case R.id.action_refresh:
-                new FetchWeatherTask().execute("Lima,PE");
+                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                String location = preferences.getString(getString(R.string.key_location),getString(R.string.pref_location_default_value));
+                if(location != null && !location.equals("")){
+                    Log.i(LOG_TAG,"location = "+location);
+                    new FetchWeatherTask().execute(location);
+                }else{
+                    new FetchWeatherTask().execute("Lima,PE");
+                }
+
                 break;
             case R.id.action_main_settings:
                 startActivity(new Intent(getActivity(),SettingsActivity.class));
