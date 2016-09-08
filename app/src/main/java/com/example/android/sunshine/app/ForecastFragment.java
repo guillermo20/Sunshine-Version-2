@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -91,8 +92,30 @@ public class ForecastFragment extends Fragment {
             case R.id.action_main_settings:
                 startActivity(new Intent(getActivity(),SettingsActivity.class));
                 break;
+            case R.id.action_preferred_location:
+                openMapIntent();
+                break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void openMapIntent(){
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String location = preferences.getString(getString(R.string.key_location),getString(R.string.pref_location_default_value));
+        if (location == null && location.equals("")){
+            Log.i(LOG_TAG,"location ="+location);
+            Toast.makeText(getActivity(),"you can't see the information on the map app",Toast.LENGTH_SHORT).show();
+        }
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        Uri geoLocation = Uri.parse("geo:0,0?q="+location).buildUpon().build();
+        intent.setData(geoLocation);
+        if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
+            Log.i(LOG_TAG,"Starting intent map activity");
+            startActivity(intent);
+        }else {
+            Log.i(LOG_TAG,"cant resolve activity");
+            Toast.makeText(getActivity(),"you can't see the information on the map app",Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void updateWeahter(){

@@ -1,7 +1,10 @@
 package com.example.android.sunshine.app;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -12,10 +15,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Adapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class DetailActivity extends ActionBarActivity {
 
-
+    private final String LOG_TAG = DetailActivity.class.getSimpleName();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,8 +50,30 @@ public class DetailActivity extends ActionBarActivity {
         if (id == R.id.action_settings) {
             startActivity(new Intent(this,SettingsActivity.class));
         }
+        if (id == R.id.action_preferred_location){
+            openMapIntent();
+        }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void openMapIntent(){
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String location = preferences.getString(getString(R.string.key_location),getString(R.string.pref_location_default_value));
+        if (location == null && location.equals("")){
+            Log.i(LOG_TAG,"location ="+location);
+            Toast.makeText(this,"you can't see the information on the map app",Toast.LENGTH_SHORT).show();
+        }
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        Uri geoLocation = Uri.parse("geo:0,0?q="+location).buildUpon().build();
+        intent.setData(geoLocation);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            Log.i(LOG_TAG,"Starting intent map activity");
+            startActivity(intent);
+        }else {
+            Log.i(LOG_TAG,"cant resolve activity");
+            Toast.makeText(this,"you can't see the information on the map app",Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**
