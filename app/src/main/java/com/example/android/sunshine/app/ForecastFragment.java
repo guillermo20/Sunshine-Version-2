@@ -102,7 +102,7 @@ public class ForecastFragment extends Fragment {
     private void openMapIntent(){
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String location = preferences.getString(getString(R.string.key_location),getString(R.string.pref_location_default_value));
-        if (location == null && location.equals("")){
+        if (location.equals("")){
             Log.i(LOG_TAG,"location ="+location);
             Toast.makeText(getActivity(),"you can't see the information on the map app",Toast.LENGTH_SHORT).show();
         }
